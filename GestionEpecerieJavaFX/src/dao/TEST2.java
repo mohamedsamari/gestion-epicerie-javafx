@@ -3,7 +3,7 @@ package dao;
 import model.Produit;
 import model.Utilisateur;
 
-public class Test {
+public class TEST2{
     public static void main(String[] arg) {
         UtilisateurDAO dao = new UtilisateurDAO();
         Utilisateur utilisateur1 = dao.login("caisse", "1234");
