@@ -1,0 +1,162 @@
+package dao;
+
+import model.Produit;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProduitDAO {
+
+    // 🔍 GET ALL PRODUITS
+    public List<Produit> getAllProduits() {
+
+        List<Produit> list = new ArrayList<>();
+        String sql = "SELECT * FROM PRODUIT";
+
+        try (Connection conn = DBConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+
+            while (rs.next()) {
+                Produit p = new Produit(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getBigDecimal("prix"),
+                        rs.getInt("quantite_stock"),
+                        rs.getInt("fournisseur_id")
+                );
+                list.add(p);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    // 🔍 GET PRODUIT BY ID
+    public Produit getProduitById(int id) {
+
+        String sql = "SELECT * FROM PRODUIT WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new Produit(
+                        rs.getInt("id"),
+                        rs.getString("nom"),
+                        rs.getBigDecimal("prix"),
+                        rs.getInt("quantite_stock"),
+                        rs.getInt("fournisseur_id")
+                );
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    // ➕ AJOUTER PRODUIT
+    public void ajouterProduit(Produit p) {
+
+        String sql = "INSERT INTO PRODUIT(nom, prix, quantite_stock, fournisseur_id) VALUES (?, ?, ?, ?)";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, p.getNom());
+            ps.setBigDecimal(2, p.getPrix());
+            ps.setInt(3, p.getQuantiteStock());
+            ps.setInt(4, p.getFournisseurId());
+
+            ps.executeUpdate();
+            System.out.println("Produit ajouté !");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ✏️ MODIFIER PRODUIT
+    public void updateProduit(Produit p) {
+
+        String sql = "UPDATE PRODUIT SET nom=?, prix=?, quantite_stock=?, fournisseur_id=? WHERE id=?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, p.getNom());
+            ps.setBigDecimal(2, p.getPrix());
+            ps.setInt(3, p.getQuantiteStock());
+            ps.setInt(4, p.getFournisseurId());
+            ps.setInt(5, p.getId());
+
+            ps.executeUpdate();
+            System.out.println("Produit modifié !");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // ❌ SUPPRIMER PRODUIT
+    public void deleteProduit(int id) {
+
+        String sql = "DELETE FROM PRODUIT WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, id);
+            ps.executeUpdate();
+
+            System.out.println("Produit supprimé !");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 📉 DIMINUER STOCK
+    public void diminuerStock(int produitId, int quantite) {
+
+        String sql = "UPDATE PRODUIT SET quantite_stock = quantite_stock - ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, quantite);
+            ps.setInt(2, produitId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // 📈 AJOUTER STOCK
+    public void ajouterStock(int produitId, int quantite) {
+
+        String sql = "UPDATE PRODUIT SET quantite_stock = quantite_stock + ? WHERE id = ?";
+
+        try (Connection conn = DBConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, quantite);
+            ps.setInt(2, produitId);
+
+            ps.executeUpdate();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
